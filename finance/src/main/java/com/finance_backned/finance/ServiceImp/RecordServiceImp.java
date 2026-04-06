@@ -7,6 +7,7 @@ import com.finance_backned.finance.Model.Record;
 import com.finance_backned.finance.Repository.CategoryRepository;
 import com.finance_backned.finance.Repository.RecordRepository;
 import com.finance_backned.finance.Service.RecordService;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,16 +20,20 @@ public class RecordServiceImp implements RecordService {
 
     private final RecordRepository recordRepository;
     private final CategoryRepository categoryRepository;
+    private final SummaryService summaryService;
 
     @Override
     public Record createRecord(Record record) {
         validateRecord(record);
         record.setType(record.getType().toLowerCase());
-        return recordRepository.save(record);
+        Record saved = recordRepository.save(record);
+        summaryService.addRecord(saved);
+        return saved;
     }
 
     @Override
-    public List<Record> getRecords(String userId, String categoryId, String type, LocalDate startDate, LocalDate endDate) {
+    public List<Record> getRecords(String userId, String categoryId, String type,
+                                   LocalDate startDate, LocalDate endDate) {
         if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
             throw new BadRequestException("Start date cannot be after end date");
         }
@@ -54,6 +59,14 @@ public class RecordServiceImp implements RecordService {
         Record existingRecord = getRecord(recordId);
         validateRecord(record);
 
+        // snapshot old values BEFORE overwriting — critical for correct summary delta
+        Record oldSnapshot = Record.builder()
+                .amount(existingRecord.getAmount())
+                .type(existingRecord.getType())
+                .categoryId(existingRecord.getCategoryId())
+                .date(existingRecord.getDate())
+                .build();
+
         existingRecord.setUserId(record.getUserId());
         existingRecord.setAmount(record.getAmount());
         existingRecord.setType(record.getType().toLowerCase());
@@ -61,12 +74,16 @@ public class RecordServiceImp implements RecordService {
         existingRecord.setDate(record.getDate());
         existingRecord.setNotes(record.getNotes());
 
-        return recordRepository.save(existingRecord);
+        Record saved = recordRepository.save(existingRecord);
+        summaryService.replaceRecord(oldSnapshot, saved);
+        return saved;
     }
 
     @Override
     public void deleteRecord(String recordId) {
-        recordRepository.delete(getRecord(recordId));
+        Record record = getRecord(recordId);
+        recordRepository.delete(record);
+        summaryService.removeRecord(record);
     }
 
     private Record getRecord(String recordId) {

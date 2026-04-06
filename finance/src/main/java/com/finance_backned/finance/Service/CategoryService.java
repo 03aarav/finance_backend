@@ -1,14 +1,15 @@
 package com.finance_backned.finance.Service;
 
 import com.finance_backned.finance.Model.Category;
-
 import java.util.List;
 
 public interface CategoryService {
 
-    Category createCategory(Category category, String userId);
+    Category createCategory(Category category);
 
-    List<Category> getAllCategories(String userId);
+    List<Category> getAllCategories();
 
-    void deleteCategory(String categoryId, String userId);
+    Category getCategoryById(String categoryId);
+
+    void deleteCategory(String categoryId);
 }

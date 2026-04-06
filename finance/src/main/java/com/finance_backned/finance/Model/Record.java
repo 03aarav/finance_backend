@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,7 +23,6 @@ public class Record {
     @Id
     private String id;
 
-    @Field("user_id")
     private String userId;
 
     @NotNull(message = "Amount is required")
@@ -35,7 +33,6 @@ public class Record {
     private String type;
 
     @NotBlank(message = "Category is required")
-    @Field("category_id")
     private String categoryId;
 
     @NotNull(message = "Date is required")

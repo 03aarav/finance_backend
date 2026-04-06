@@ -1,5 +1,6 @@
 package com.finance_backned.finance.Model;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,9 +18,11 @@ public class Category {
     @Id
     private String id;
 
+    @NotBlank(message = "Category name is required")
     private String name;
 
+    @NotBlank(message = "Category type is required")
     private String type;
 
-    private String userId;
+    private String createdBy;  // renamed from userId — clearer intent
 }

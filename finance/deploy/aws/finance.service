@@ -1,0 +1,17 @@
+[Unit]
+Description=Finance Spring Boot API
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/opt/finance
+Environment=PORT=8080
+EnvironmentFile=/opt/finance/.env
+ExecStart=/usr/bin/java -jar /opt/finance/app.jar
+SuccessExitStatus=143
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

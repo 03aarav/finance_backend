@@ -16,8 +16,9 @@ public class AuthController {
 
     private final UserRepository userRepository;
 
-    @PreAuthorize("hasRole('ADMIN')")
+
     @PostMapping("/register")
+    @PreAuthorize("hasRole('ADMIN')")
     public String register(@RequestBody User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new BadRequestException("Email already exists");
